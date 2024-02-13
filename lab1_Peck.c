@@ -1,5 +1,6 @@
 #include <stdio.h>            
-#include <stdlib.h>            
+#include <stdlib.h>   
+#include <string.h>         
 // you can use additional headers as needed
 
 typedef struct node {
@@ -11,8 +12,20 @@ typedef struct node {
 
 NODE *root; 
 NODE *cwd;
-char *cmd[] = {};  // fill with list of commands
+char *cmd[] = {"mkdir", "rmdir", "ls", "cd", "pwd", "creat", "rm",
+"reload", "save", "quit", 0};  // fill with list of commands
 // other global variables
+
+int find_command(char *user_command) {
+	int i = 0;
+	while(cmd[i]){
+		if (strcmp(user_command, cmd[i])==0)
+		return i;
+		i++;
+	}
+	return -1;
+}
+
 
 
 int initialize() {
@@ -33,6 +46,8 @@ int main() {
 	while(1) {
 		printf("Enter command: ");
 		// complete implementations
+
+		break;
 	}
 }
 
