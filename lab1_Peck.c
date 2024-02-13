@@ -26,8 +26,6 @@ int find_command(char *user_command) {
 	return -1;
 }
 
-
-
 int initialize() {
 	root = (NODE *)malloc(sizeof(NODE));
 	strcpy(root->name, "/");
