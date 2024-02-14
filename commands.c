@@ -1,8 +1,36 @@
 #include "commands.h"
 
+NODE *root; 
+NODE *cwd;
+char *cmd[] = {"mkdir", "rmdir", "ls", "cd", "pwd", "creat", "rm",
+"reload", "save", "quit", 0};  // fill with list of commands
+// other global variables
+
+void initialize() {
+	root = (NODE *)malloc(sizeof(NODE));
+	strcpy(root->name, "/");
+	root->parent = root;
+	root->Ysibling = 0;
+	root->Osibling = 0;
+	root->child = 0;
+	root->type = 'D';
+	cwd = root;
+	printf("Filesystem initialized!\n");
+}
+
+int find_command(char *user_command) {
+	int i = 0;
+	while(cmd[i]){
+		if (strcmp(user_command, cmd[i])==0)
+		return i;
+		i++;
+	}
+	return -1;
+}
+
 int mkdir(char* pathname){
-    char* baseName;
-    char* dirName;
+    char baseName[64];
+    char dirName[64];
     int pathLen = strlen(pathname) - 1; // setting pathLen to length of target pathname - 1
     for (int i = pathLen; i >= 0; i--){ // iterating through pathname to find '/'
         if (pathname[i] == '/'){ // if '/' found
@@ -25,26 +53,44 @@ int mkdir(char* pathname){
             currentDir = search(cwd, dirName);
         }
         if(currentDir && currentDir->type == 'D'){ // if dirName exists and is a directory
-            if (search(currentDir, pathname)){
-                printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
-                return 0;
+            char temp[64];
+            if (dirName[0] != '/'){
+                strcpy(temp, currentDir->name);
+                strcat(temp, "/");
+                strcat(temp, pathname);
+                if (search(currentDir, temp)){
+                    printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
+                    return 0;
+                }
             }
+            else{
+                if (search(currentDir, pathname)){
+                    printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
+                    return 0;
+                }
+            }
+
             NODE* newDir = (NODE*)malloc(sizeof(NODE)); // allocate new directory node
             if (newDir == NULL){ // if memory allocation fails
                 printf("Malloc Error"); // print Malloc error to console
                 return 0;
             }
             else {
-                strcpy(newDir->name, pathname);
+                if (dirName[0] == '/'){
+                    strcpy(newDir->name, pathname);
+                }
+                else{
+                    strcpy(newDir->name, temp); // adding cwd's path to the beginning of new directory's path
+                }
                 newDir->type = 'D';
                 newDir->parent = currentDir;
                 newDir->child = NULL;
                 newDir->Ysibling = NULL;
-                if(currentDir->child == NULL){
+                if(currentDir->child == NULL){ // if currentDir is empty
                     currentDir->child = newDir;
                     newDir->Osibling = NULL;
                 }
-                else{
+                else{ // if currentDir has at least 1 child
                     currentDir = currentDir->child;
                     while (currentDir->Ysibling){
                         currentDir = currentDir->Ysibling;
@@ -64,6 +110,44 @@ int mkdir(char* pathname){
             return 0;
         }
     }
+    else{ // if pathname contains no prior directories
+        NODE* currentDir;
+        currentDir = cwd;
+        char temp[64];
+            strcpy(temp, currentDir->name);
+            strcat(temp, "/");
+            strcat(temp, pathname);
+        if (search(currentDir, temp)){
+            printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
+            return 0;
+        }
+        NODE* newDir = (NODE*)malloc(sizeof(NODE)); // allocate new directory node
+        if (newDir == NULL){ // if memory allocation fails
+            printf("Malloc Error"); // print Malloc error to console
+            return 0;
+        }
+        else {
+            strcpy(newDir->name, temp); // adding cwd's path to the beginning of new directory's path
+            newDir->type = 'D';
+            newDir->parent = currentDir;
+            newDir->child = NULL;
+            newDir->Ysibling = NULL;
+            if(currentDir->child == NULL){
+                currentDir->child = newDir;
+                newDir->Osibling = NULL;
+            }
+            else{
+                currentDir = currentDir->child;
+                while (currentDir->Ysibling){
+                    currentDir = currentDir->Ysibling;
+                }
+                currentDir->Ysibling = newDir;
+                newDir->Osibling = currentDir;
+            }
+            return 1;
+        }
+    }
+
 }
 
 /*

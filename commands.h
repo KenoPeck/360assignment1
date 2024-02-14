@@ -4,6 +4,7 @@
 #include <stdio.h>            
 #include <stdlib.h>   
 #include <string.h>
+#include <stdbool.h>
 // you can use additional headers as needed
 
 typedef struct node {
@@ -12,14 +13,9 @@ typedef struct node {
 	struct node *child, *Ysibling, *Osibling, *parent;
 } NODE;
 
-
-NODE *root; 
-NODE *cwd;
-char *cmd[] = {"mkdir", "rmdir", "ls", "cd", "pwd", "creat", "rm",
-"reload", "save", "quit", 0};  // fill with list of commands
-// other global variables
-
-int mkdir(char* pathway);
+void initialize(void);
+int find_command(char *user_command);
+int mkdir(char* pathname);
 NODE* search(NODE* mRoot, char* target);
 
 #endif;

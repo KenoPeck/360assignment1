@@ -5,7 +5,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/lab1_Peck",
+            "program": "${workspaceFolder}/lab1",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

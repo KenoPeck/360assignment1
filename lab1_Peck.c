@@ -1,36 +1,36 @@
 #include "commands.h"         
 
-int find_command(char *user_command) {
-	int i = 0;
-	while(cmd[i]){
-		if (strcmp(user_command, cmd[i])==0)
-		return i;
-		i++;
-	}
-	return -1;
-}
-
-int initialize(void) {
-	root = (NODE *)malloc(sizeof(NODE));
-	strcpy(root->name, "/");
-	root->parent = root;
-	root->Ysibling = 0;
-	root->Osibling = 0;
-	root->child = 0;
-	root->type = 'D';
-	cwd = root;
-	printf("Filesystem initialized!\n");
-}
-
 int main(void) {
 	initialize();
 	// other initialization as needed
-
-	while(1) {
+	char userInput[71];
+	char* command, *arg;
+	int commandIndex;
+	bool running = 1;
+	while(running) {
 		printf("Enter command: ");
 		// complete implementations
-
-		break;
+		fgets(userInput, sizeof(userInput), stdin);
+		command = strtok(userInput, " \n");
+		commandIndex = find_command(command);
+		while (commandIndex == -1){
+			printf("Command Not Found!\nEnter command: \n");
+			fgets(userInput, sizeof(userInput), stdin);
+			command = strtok(userInput, " \n");
+			commandIndex = find_command(command);
+		}
+		arg = strtok(NULL, "\n");
+		switch(commandIndex){
+			case 0:
+			 	int debug = mkdir(arg);
+				printf("Debug: %d\n",(debug));
+				break;
+			case 9:
+				printf("Exiting File System...\n");
+				running = 0;
+				break;
+		}
 	}
+	return 0;
 }
 
