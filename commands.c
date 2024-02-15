@@ -28,20 +28,33 @@ int find_command(char *user_command) {
 	return -1;
 }
 
+/*
+Function name: mkdir
+Description: create new directory
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*target (new directory pathname)
+*/
 int mkdir(char* pathname){
+    if (pathname == NULL){
+        printf("ERROR - mkdir requires a pathname argument to work\n");
+        return 0;
+    }
     char baseName[64];
     char dirName[64];
     int pathLen = strlen(pathname) - 1; // setting pathLen to length of target pathname - 1
     for (int i = pathLen; i >= 0; i--){ // iterating through pathname to find '/'
         if (pathname[i] == '/'){ // if '/' found
             strcpy(baseName, &pathname[i+1]); // set baseName to characters after '/'
-            strncpy(dirName, pathname, i+1); // set dirName to characters before '/'
-            dirName[i] = '\0'; // change '/' character to '\0' to separate the two
+            strncpy(dirName, pathname, (i+1)); // set dirName to characters before '/'
+            if (i != 0){
+                dirName[i] = '\0'; // change '/' character to '\0' to separate the two
+            }
             break;
         }
         else if (i == 0){ // if pathname is relative with no parent directories
             strcpy(dirName, "\0");
             strcpy(baseName, pathname);
+            break;
         }
     }
     if (dirName[0] != '\0'){ // if path contains more than one DIR
@@ -50,29 +63,33 @@ int mkdir(char* pathname){
             currentDir = search(root, dirName);
         }
         else{ // if pathname is relative
-            currentDir = search(cwd, dirName);
+            char dirNameWithSlash[64] = "/";
+            strcat(dirNameWithSlash, dirName); // adding '/' to beginning of pathname's parent directory
+            currentDir = search(cwd, dirNameWithSlash);
         }
         if(currentDir && currentDir->type == 'D'){ // if dirName exists and is a directory
             char temp[64];
-            if (dirName[0] != '/'){
+            if (dirName[0] != '/'){ // if pathname relative
                 strcpy(temp, currentDir->name);
-                strcat(temp, "/");
-                strcat(temp, pathname);
+                if (strcmp(currentDir->name, "/") != 0){ // making sure current directory is not root
+                    strcat(temp, "/");
+                }
+                strcat(temp, baseName); // combining pathname with parent directory name
                 if (search(currentDir, temp)){
-                    printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
+                    printf("Error - DIR %s already exists!\n", (pathname)); // print error message if directory already exists
                     return 0;
                 }
             }
             else{
                 if (search(currentDir, pathname)){
-                    printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
+                    printf("Error - DIR %s already exists!\n", (pathname)); // print error message if directory already exists
                     return 0;
                 }
             }
 
             NODE* newDir = (NODE*)malloc(sizeof(NODE)); // allocate new directory node
             if (newDir == NULL){ // if memory allocation fails
-                printf("Malloc Error"); // print Malloc error to console
+                printf("Malloc Error\n"); // print Malloc error to console
                 return 0;
             }
             else {
@@ -102,28 +119,30 @@ int mkdir(char* pathname){
             }
         }
         else if (currentDir == NULL){
-            printf("Error - DIR %s does not exist!", (dirName));
+            printf("Error - DIR %s does not exist!\n", (dirName));
             return 0;
         }
         else{
-            printf("Error - %s is a FILE not a DIRECTORY!",(dirName));
+            printf("Error - %s is a FILE not a DIRECTORY!\n",(dirName));
             return 0;
         }
     }
-    else{ // if pathname contains no prior directories
+    else{ // if pathname contains no parent directories
         NODE* currentDir;
         currentDir = cwd;
         char temp[64];
-            strcpy(temp, currentDir->name);
+        strcpy(temp, currentDir->name);
+        if (strcmp(currentDir->name, "/") != 0){
             strcat(temp, "/");
-            strcat(temp, pathname);
+        }
+        strcat(temp, pathname);
         if (search(currentDir, temp)){
-            printf("Error - DIR %s already exists!", (pathname)); // print error message if directory already exists
+            printf("Error - DIR %s already exists!\n", (pathname)); // print error message if directory already exists
             return 0;
         }
         NODE* newDir = (NODE*)malloc(sizeof(NODE)); // allocate new directory node
         if (newDir == NULL){ // if memory allocation fails
-            printf("Malloc Error"); // print Malloc error to console
+            printf("Malloc Error\n"); // print Malloc error to console
             return 0;
         }
         else {
@@ -190,4 +209,51 @@ NODE* search(NODE* mRoot, char* target){
     else{
         return NULL;
     }
+}
+
+int rmdir(char* pathname){
+    if (pathname == NULL){
+        printf("ERROR - rmdir requires a pathname argument to work\n");
+        return 0;
+    }
+    NODE* currentDir;
+    if(pathname[0] == '/'){
+        currentDir = search(root, pathname);
+        if (currentDir == NULL){
+            printf("ERROR - %s does not exist",(pathname));
+            return 0;
+        }
+    }
+    else{
+        char pathnameWithSlash[64] = "/";
+        strcat(pathnameWithSlash, pathname);
+        currentDir = search(cwd, pathnameWithSlash);
+        if (currentDir == NULL){
+            printf("ERROR - %s does not exist",(pathname));
+            return 0;
+        }
+    }
+    if (currentDir->type == 'F'){
+        printf("ERROR - %s is not a directory!",(pathname));
+        return 0;
+    }
+    else if (currentDir->child){
+        printf("ERROR - %s is not empty!",(pathname));
+        return 0;
+    }
+    else{
+        NODE* parentDir = currentDir->parent;
+        NODE* oSibling = currentDir->Osibling;
+        NODE* ySibling = currentDir->Ysibling;
+        if(parentDir->child == currentDir){
+            parentDir->child = ySibling;
+        }
+        if(oSibling){
+            oSibling->Ysibling = ySibling;
+            ySibling->Osibling = oSibling;
+        }
+        free(currentDir);
+        return 1;
+    }
+    
 }

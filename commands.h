@@ -1,4 +1,4 @@
-#ifndef commands_h;
+#ifndef commands_h
 
 #define _CRT_SECURE_NO_WARNINGS 
 #include <stdio.h>            
@@ -17,5 +17,6 @@ void initialize(void);
 int find_command(char *user_command);
 int mkdir(char* pathname);
 NODE* search(NODE* mRoot, char* target);
+int rmdir(char* pathname);
 
-#endif;
+#endif
