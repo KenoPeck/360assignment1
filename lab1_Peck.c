@@ -7,6 +7,7 @@ int main(void) {
 	char* command, *arg;
 	int commandIndex;
 	bool running = 1;
+	int debug, debugOn = 0;
 	while(running) {
 		printf("Enter command: ");
 		// complete implementations
@@ -20,48 +21,76 @@ int main(void) {
 			commandIndex = find_command(command);
 		}
 		arg = strtok(NULL, "\n");
-		int debug = 0;
+		debug = 0;
 		switch(commandIndex){
 			case 0:
 			 	debug = mkdir(arg);
-				printf("Debug: %d\n",(debug));
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 1:
 				debug = rmdir(arg);
-				printf("Debug: %d\n",(debug));
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 2:
-				// debug = ls(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = ls(arg);
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 3:
-				// debug = cd(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = cd(arg);
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 4:
-				// debug = pwd(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = pwd();
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 5:
-				// debug = creat(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = creat(arg);
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 6:
-				// debug = rm(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = rm(arg);
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 7:
-				// debug = reload(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = reload(arg);
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 8:
-				// debug = save(arg);
-				// printf("Debug: %d\n",(debug));
+				debug = save(arg);
+				if (debugOn){
+					printf("Debug: %d\n",(debug));
+				}
 				break;
 			case 9:
 				printf("Exiting File System...\n");
+				save("fssim_peck.txt");
 				running = 0;
 				break;
+			case 10:
+				if (debugOn){
+					printf("Debug mode is now OFF\n");
+					debugOn = 0;
+				}
+				else{
+					printf("Debug mode is now ON\n");
+					debugOn = 1;
+				}
 		}
 		arg = NULL;
 	}

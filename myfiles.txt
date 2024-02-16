@@ -1,0 +1,11 @@
+D /f1
+D /f1/code
+F /f1/code/foo.py
+F /f1/code/foo2.py
+F /f1/python.txt
+D /f2
+D /f2/notes
+F /f2/notes/note1.txt
+F /f2/notes/note2.txt
+F /f2/hello.txt
+F /test.txt
