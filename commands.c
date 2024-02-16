@@ -214,6 +214,12 @@ NODE* search(NODE* mRoot, char* target){
     }
 }
 
+/*
+Function name: rmdir
+Description: remove a directory (either absolute or relative)
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*pathname (pathname to be removed)
+*/
 int rmdir(char* pathname){
     if (pathname == NULL){
         printf("ERROR - rmdir requires a pathname argument to work\n");
@@ -409,6 +415,12 @@ int creat(char* pathname){
 
 }
 
+/*
+Function name: rm
+Description: remove a file (either absolute or relative)
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*pathname (pathname to be removed)
+*/
 int rm(char* pathname){
     if (pathname == NULL){
         printf("ERROR - rm requires a pathname argument to work\n");
@@ -457,6 +469,12 @@ int rm(char* pathname){
     }
 }
 
+/*
+Function name: cd
+Description: change cwd to a different a directory (either absolute or relative)
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*pathname (new directory)
+*/
 int cd(char* pathname){
     if (pathname == NULL){
         cwd = root;
@@ -502,11 +520,23 @@ int cd(char* pathname){
     }
 }
 
+/*
+Function name: pwd
+Description: prints current working directory
+Return type: int (1 = success, 0 = failure)
+Input Parameters: N/A
+*/
 int pwd(){
     printf("%s\n",(cwd->path));
     return 1;
 }
 
+/*
+Function name: ls
+Description: list all files/directories in a directory (either absolute or relative)
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*pathname (target directory)
+*/
 int ls(char* pathname){
     if (pathname == NULL){
         NODE* currentDir = cwd->child;
@@ -555,6 +585,12 @@ int ls(char* pathname){
     }
 }
 
+/*
+Function name: save
+Description: saves current filesystem to a file with name filename
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*filename (name of file to save to)
+*/
 int save(char* filename){
     if(filename == NULL){
         printf("ERROR - save requires a filename argument to work\n");
@@ -568,6 +604,12 @@ int save(char* filename){
     return 1;
 }
 
+/*
+Function name: savehelper
+Description: recursive helper function for save() that saves current file and all children
+Return type: N/A
+Input Parameters: FILE* fp (file being worked on), char* filename (name of file), NODE* currentDir (current file node)
+*/
 void saveHelper(FILE* fp, char* filename, NODE* currentDir){
     if(currentDir == NULL){
         return;
@@ -582,6 +624,12 @@ void saveHelper(FILE* fp, char* filename, NODE* currentDir){
     }
 }
 
+/*
+Function name: reload
+Description: reinitializes file system with files saved in filename
+Return type: int (1 = success, 0 = failure)
+Input Parameters: char*filename (file with filesystem saved)
+*/
 int reload(char* filename){
     if(filename == NULL){
         printf("ERROR - load requires a filename argument to work\n");
@@ -603,6 +651,12 @@ int reload(char* filename){
     return 1;
 }
 
+/*
+Function name: clearFiles
+Description: recursive helper function for resetting filesystem in reload()
+Return type: N/A
+Input Parameters: NODE*mroot (current File to be removed)
+*/
 void clearFiles(NODE* mroot){
     if(mroot == NULL){
         return;
