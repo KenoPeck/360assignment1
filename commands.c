@@ -226,18 +226,18 @@ int rmdir(char* pathname){
         return 0;
     }
     NODE* currentDir;
-    if(pathname[0] == '/'){
+    if(pathname[0] == '/'){ // if pathname is absolute
         currentDir = search(root, pathname);
         if (currentDir == NULL){
             printf("ERROR - %s does not exist\n",(pathname));
             return 0;
         }
     }
-    else{
+    else{ // if pathname is relative
         char pathnameWithSlash[64];
         strcpy(pathnameWithSlash,cwd->path);
         if(cwd != root){
-            strcat(pathnameWithSlash, "/");
+            strcat(pathnameWithSlash, "/"); // add '/'
         }
         strcat(pathnameWithSlash, pathname);
         currentDir = search(cwd, pathnameWithSlash);
@@ -255,7 +255,7 @@ int rmdir(char* pathname){
         return 0;
     }
     else{
-        NODE* parentDir = currentDir->parent;
+        NODE* parentDir = currentDir->parent; // update other file statuses
         NODE* oSibling = currentDir->Osibling;
         NODE* ySibling = currentDir->Ysibling;
         if(parentDir->child == currentDir){
@@ -427,14 +427,14 @@ int rm(char* pathname){
         return 0;
     }
     NODE* currentDir;
-    if(pathname[0] == '/'){
+    if(pathname[0] == '/'){ // absolute
         currentDir = search(root, pathname);
         if (currentDir == NULL){
             printf("ERROR - %s does not exist\n",(pathname));
             return 0;
         }
     }
-    else{
+    else{ // relative
         char pathnameWithSlash[64] = "/";
         strcpy(pathnameWithSlash,cwd->path);
         if(cwd != root){
@@ -452,7 +452,7 @@ int rm(char* pathname){
         return 0;
     }
     else{
-        NODE* parentDir = currentDir->parent;
+        NODE* parentDir = currentDir->parent; // update other file's connections
         NODE* oSibling = currentDir->Osibling;
         NODE* ySibling = currentDir->Ysibling;
         if(parentDir->child == currentDir){
@@ -480,7 +480,7 @@ int cd(char* pathname){
         cwd = root;
         return 1;
     }
-    else if(strcmp(pathname, "..") == 0){
+    else if(strcmp(pathname, "..") == 0){ // going back 1 directory
         if(cwd != root){
             cwd = cwd->parent;
             return 1;
@@ -491,21 +491,21 @@ int cd(char* pathname){
     }
     else{
         NODE* currentDir;
-        if (pathname[0] == '/'){
+        if (pathname[0] == '/'){ // absolute
             currentDir = search(root, pathname);
         }
-        else{
+        else{ // relative
             char pathnameWithSlash[64] = "/";
             strcpy(pathnameWithSlash,cwd->path);
             if(cwd != root){
                 strcat(pathnameWithSlash, "/");
             }
-            strcat(pathnameWithSlash, pathname);
+            strcat(pathnameWithSlash, pathname); // adding '/'
             currentDir = search(cwd, pathnameWithSlash);
         }
         if(currentDir){
             if(currentDir->type == 'D'){
-                cwd = currentDir;
+                cwd = currentDir; // updating cwd
                 return 1;
             }
             else{
@@ -538,7 +538,7 @@ Return type: int (1 = success, 0 = failure)
 Input Parameters: char*pathname (target directory)
 */
 int ls(char* pathname){
-    if (pathname == NULL){
+    if (pathname == NULL){ // listing cwd contents
         NODE* currentDir = cwd->child;
         while(currentDir){
             if(currentDir->type == 'F'){
@@ -551,23 +551,23 @@ int ls(char* pathname){
         }
         return 1;
     }
-    else{
+    else{ 
         NODE* currentDir;
-        if (pathname[0] == '/'){
+        if (pathname[0] == '/'){ // absolute path contents
             currentDir = search(root, pathname);
         }
-        else{
+        else{ // relative
             char pathnameWithSlash[64] = "/";
             strcpy(pathnameWithSlash,cwd->path);
             if(cwd != root){
                 strcat(pathnameWithSlash, "/");
             }
             strcat(pathnameWithSlash, pathname);
-            currentDir = search(cwd, pathnameWithSlash);
+            currentDir = search(cwd, pathnameWithSlash); // adding '/'
         }
         if(currentDir){
             currentDir = currentDir->child;
-            while(currentDir){
+            while(currentDir){ // printing all contents
                 if(currentDir->type == 'F'){
                     printf("FILE    %s\n",(currentDir->name));
                 }
@@ -598,7 +598,7 @@ int save(char* filename){
     }
     if(root->child){
         FILE *fp = fopen(filename, "w+"); // open a file stream        
-        saveHelper(fp, filename, root->child);
+        saveHelper(fp, filename, root->child); // helper function
         fclose(fp); // close file stream when done
     }
     return 1;
@@ -615,9 +615,9 @@ void saveHelper(FILE* fp, char* filename, NODE* currentDir){
         return;
     }
     fprintf(fp, "%c %s\n", currentDir->type, currentDir->path); // print a line to file
-    saveHelper(fp, filename, currentDir->child);
+    saveHelper(fp, filename, currentDir->child); // save self
     NODE* tempDir = currentDir;
-    while(tempDir->Ysibling){
+    while(tempDir->Ysibling){ // save children
         tempDir = tempDir->Ysibling;
         fprintf(fp, "%c %s\n", tempDir->type, tempDir->path); // print a line to file
         saveHelper(fp, filename, tempDir->child);
@@ -635,15 +635,15 @@ int reload(char* filename){
         printf("ERROR - load requires a filename argument to work\n");
         return 0;
     }
-    clearFiles(root->child);
+    clearFiles(root->child); // resetting tree to be refilled
     FILE *fp = fopen(filename, "r"); // open a file stream
     char savedType, savedPath[128];
     while(fscanf(fp, "%c %s", &savedType, savedPath) != EOF){
         if(savedType == 'D'){
-            mkdir(savedPath);
+            mkdir(savedPath); // adding directory
         }
         else{
-            creat(savedPath);
+            creat(savedPath); // adding file
         }
         fgetc(fp);
     }
@@ -657,14 +657,14 @@ Description: recursive helper function for resetting filesystem in reload()
 Return type: N/A
 Input Parameters: NODE*mroot (current File to be removed)
 */
-void clearFiles(NODE* mroot){
+void clearFiles(NODE* mroot){ // depth-first deletion
     if(mroot == NULL){
         return;
     }
     if(mroot->child){
-        clearFiles(mroot->child);
+        clearFiles(mroot->child); // clear child
     }
-    NODE* next2 = mroot->Ysibling, *next;
+    NODE* next2 = mroot->Ysibling, *next; // nodes for finding youngest child then deleting backwards from there
     if(next2){
         while(next2->Ysibling){
             next2 = next2->Ysibling;
@@ -680,10 +680,10 @@ void clearFiles(NODE* mroot){
             next2 = NULL;
         }
     }
-    if (mroot->type == 'D'){
+    if (mroot->type == 'D'){ // deleting directory
         rmdir(mroot->path);
     }
     else{
-        rm(mroot->path);
+        rm(mroot->path); // deleting file
     }
 }
